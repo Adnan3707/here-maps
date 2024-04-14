@@ -1,8 +1,8 @@
 import React, { useEffect, useRef,useState } from 'react';
 import H from '@here/maps-api-for-javascript';
 const Map = ( props ) => {
+  var map = useRef(null);
     const mapRef = useRef(null);
-    const map = useRef(null);
     const platform = useRef(null)
     const { apikey, userPosition, restaurantPosition ,layerStyle ,waypoints} = props;
     const [layerType, setLayerType] = useState('map'); // Default layer type
@@ -33,7 +33,7 @@ const Map = ( props ) => {
               defaultLayers.vector.normal[layerType],
               {
                   pixelRatio: window.devicePixelRatio,
-                  center:   navigator.geolocation.getCurrentPosition( function (position) { return { lat: position.coords.latitude, lng: position.coords.longitude} } ),
+                  center:  { lat: 0, lng: 0 },
                   zoom: 3,
               },
           );
@@ -72,6 +72,37 @@ const Map = ( props ) => {
         map.current.setBaseLayer(platform.current.createDefaultLayers().vector.normal[layerType]);
       }
     }, [layerType]);
+
+     // if user grants permission
+    const updateMapCenter = (position) => {
+      if (map.current) {
+        map.current.setCenter({ lat: position.coords.latitude, lng: position.coords.longitude });
+        map.current.setZoom(9);
+        map.current.addObject(currentLocationMarkerIcon(position.coords.latitude,position.coords.longitude,H) )
+      }
+    };
+  
+    // Check if the browser supports Geolocation API
+    if (navigator.geolocation) {
+      // Check permission status
+      navigator.permissions.query({ name: 'geolocation' }).then((permissionStatus) => {
+        if (permissionStatus.state === 'granted') {
+          // Permission already granted, update map center immediately
+          navigator.geolocation.getCurrentPosition(updateMapCenter);
+        } else if (permissionStatus.state === 'prompt') {
+          // Permission not granted, but user may grant it
+          // Listen for changes in permission status
+          permissionStatus.onchange = () => {
+            if (permissionStatus.state === 'granted') {
+              // Permission granted, update map center
+              navigator.geolocation.getCurrentPosition(updateMapCenter);
+            }
+          };
+        }
+      });
+    }
+
+
       // Return a div element to hold the map
       return <div style={ { width: "100%", height: "500px" } } ref={mapRef} />;
 
@@ -163,6 +194,26 @@ const Map = ( props ) => {
      
   }
    } 
+   function currentLocationMarkerIcon(lat,lng,H) {
+    let color = 'blue'
+    const svgCircle = `<svg width="20" height="20" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                <g id="marker">
+                <circle cx="10" cy="10" r="7" fill="${color}" stroke="${color}" stroke-width="4" />
+                </g></svg>`;
+                var icon = new H.map.Icon(svgCircle, {
+                  anchor: {
+                      x: 10,
+                      y: 10
+                  }
+              });
+    //  new H.map.Icon(pin, {
+    //     anchor: {
+    //         x: lat,
+    //         y: lng
+    //     }
+    // });
+    return new H.map.Marker({ lat: lat, lng: lng }, { icon:  icon });
 
+   }
 
   export default Map;
