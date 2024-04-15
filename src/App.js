@@ -6,8 +6,7 @@ import DebounceSelect from "./components/select";
 import { fetchUserList } from "./components/select";
 import { style_rivers,style_road,style_road_water,style_bridges } from "./maps/layers/allLayers";
 
-const apikey = 'twCd8gW4pQUKn9zkgB8CP-AnxPtC4HXZpwN-oR2BB3o'
-//  process.env.REACT_APP_HKEY;
+const apikey = process.env.REACT_APP_HKEY;
 console.log(apikey)
 
 function App() {
