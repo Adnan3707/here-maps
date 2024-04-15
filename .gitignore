@@ -6,6 +6,7 @@
 .pnp.js
 command.txt
 rough.txt
+
 # testing
 /coverage
 
@@ -20,6 +21,7 @@ rough.txt
 .env.production.local
 .here
 .gitignore
+
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*

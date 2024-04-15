@@ -1,10 +1,64 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useMemo, useRef, useState ,useEffect } from 'react';
 import { Select, Spin } from 'antd';
 import debounce from 'lodash/debounce';
-export default function DebounceSelect({ fetchOptions, debounceTimeout = 800, ...props }) {
+export default function DebounceSelect({ fetchOptions , defaults , debounceTimeout = 800, ...props }) {
   const [fetching, setFetching] = useState(false);
   const [options, setOptions] = useState([]);
+
   const fetchRef = useRef(0);
+  const getUserLocation = () => {
+    // Check if the browser supports Geolocation API
+    if (navigator.geolocation) {
+      // Check permission status
+      navigator.permissions.query({ name: 'geolocation' }).then((permissionStatus) => {
+        if (permissionStatus.state === 'granted') {
+          // Permission already granted, update map center immediately
+          navigator.geolocation.getCurrentPosition((position)=>{
+            const userLocation = {
+              label: 'Current Location',
+              value: `${position.coords.latitude},${position.coords.longitude}`
+            };
+            setOptions(prevOptions => {
+              // Check if 'Current Location' already exists in the options array
+              if (!prevOptions.find((obj) => obj.label === 'Current Location')) {
+                // If not, append the userLocation object to the options array
+                return [...prevOptions, userLocation];
+              }
+              // If 'Current Location' already exists, return the existing options array
+              return prevOptions;
+            });
+          
+          });
+        } else if (permissionStatus.state === 'prompt') {
+          // Permission not granted, but user may grant it
+          // Listen for changes in permission status
+          permissionStatus.onchange = () => {
+            if (permissionStatus.state === 'granted') {
+              // Permission granted, update map center
+              // navigator.geolocation.getCurrentPosition((position)=>{
+              //   const userLocation = {
+              //     label: 'Current Location',
+              //     value: `${position.coords.latitude},${position.coords.longitude}`
+              //   };
+              //   setOptions(prevOptions => [...prevOptions, userLocation]);
+              
+              // });
+            }
+          };
+        }
+      });
+    }
+  }
+
+  useEffect(() => {
+    if (options.length <= 0) {
+      getUserLocation()
+    }
+
+  }, [options]); // Update options when defaults change
+
+
+
   const debounceFetcher = useMemo(() => {
     const loadOptions = (value) => {
       fetchRef.current += 1;

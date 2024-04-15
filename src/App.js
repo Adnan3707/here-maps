@@ -1,41 +1,19 @@
 import React from "react";
 import { useState ,useEffect} from "react";
 import Map from "./maps/maps";
-import RestaurantList from "./RestaurantList/RestaurantList ";
-import { Input } from 'antd';
 import { Select } from 'antd';
 import DebounceSelect from "./components/select";
 import { fetchUserList } from "./components/select";
 import { style_rivers,style_road,style_road_water,style_bridges } from "./maps/layers/allLayers";
 
-const apikey = process.env.REACT_APP_HKEY;
+const apikey = 'twCd8gW4pQUKn9zkgB8CP-AnxPtC4HXZpwN-oR2BB3o'
+//  process.env.REACT_APP_HKEY;
 console.log(apikey)
-const restaurantList = [
-  {
-    name: "The Fish Market",
-    location: { lat: 64.1508, lng: -21.9536 },
-  },
-  {
-    name: "Bæjarins Beztu Pylsur",
-    location: { lat: 64.1502, lng: -21.9519 },
-  },
-  {
-    name: "Grillmarkadurinn",
-    location: { lat: 64.1475, lng: -21.9347 },
-  },
-  {
-    name: "Kol Restaurant",
-    location: { lat: 64.1494, lng: -21.9337 },
-  },
-];
+
 function App() {
 
-var [userPosition, setuserPosition] = useState({ lat: null, lng: null });
-
-
-
-console.log(userPosition)
-
+var [userPosition, setuserPosition] = useState([]);
+ var [defaults, setDefaults] = useState(false);
   const [restaurantPosition, setRestaurantPosition] = useState(null);
   const [searchPosition, setsearchPosition] = useState(null);
   // locations from and to
@@ -50,17 +28,7 @@ console.log(userPosition)
     setRestaurantPosition(location);
     console.log(restaurantPosition)
   };
-  const onSerachEnd_ = (text) =>{
-    console.log(text)
-    setTimeout(() => {
-      setsearchPosition(text);
-    }, 2000); 
-  }
-  // const onChange = (value) => {
-  //   // console.log(`selected ${value}`);
-  //   setlayerStyle(value)
-  //   console.log(layerStyle)
-  // };
+
   return (
     <><div>
       {/* <RestaurantList list={restaurantList} onClickHandler={onClickHandler_} /> */}
@@ -72,6 +40,7 @@ console.log(userPosition)
         value={value}
         placeholder="Location From"
         fetchOptions={fetchUserList}
+       
         onChange={(newValue) => {
           if(newValue.length > 0){
             setuserPosition({"lat":newValue[0].value.split(',')[0],"lng": newValue[0].value.split(',')[1] });
