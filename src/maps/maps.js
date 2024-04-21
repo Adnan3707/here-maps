@@ -29,13 +29,11 @@ const Map = ( props ) => {
             // Create a new map instance with the Tile layer, center and zoom level
 
             var defaultLayers = platform.current.createDefaultLayers(); 
-            const newMap = new H.Map(mapRef.current,
-              defaultLayers.vector.normal[layerType],
-              {
-                  pixelRatio: window.devicePixelRatio,
-                  center:  { lat: 0, lng: 0 },
-                  zoom: 3,
-              },
+            const newMap = new H.Map(mapRef.current, defaultLayers.vector.normal.map, {
+              zoom: 10,
+              center: {lat: 52.522763341087874, lng: 13.492702024100026},
+              pixelRatio: window.devicePixelRatio || 1
+            }
           );
 
             // Add panning and zooming behavior to the map
@@ -44,23 +42,26 @@ const Map = ( props ) => {
             );
             // Set the map object to the reference
             map.current = newMap;
+            var ui = H.ui.UI.createDefault(map.current, defaultLayers);
                             // test
-                            // var reader = new H.data.geojson.Reader('data/berlin.json', {
-                            //   // This function is called each time parser detects a new map object
-                            //   style: function (mapObject) {
-                            //     console.log('map object inside parse',mapObject)
-                            //     // Parsed geo objects could be styled using setStyle method
-                            //     if (mapObject instanceof H.map.Polygon) {
-                            //       mapObject.setStyle({
-                            //         fillColor: 'rgba(255, 0, 0, 0.5)',
-                            //         strokeColor: 'rgba(0, 0, 255, 0.2)',
-                            //         lineWidth: 3
-                            //       });
-                            //     }
-                            //   }
-                            // });
-                            // reader.parse(); // Trigger parsing of the file
-                            //   map.current.addLayer(reader.getLayer());
+                            console.log('h',H)
+                            var reader = new H.data.geojson.Reader('data/berlin.json', {
+                              // This function is called each time parser detects a new map object
+                              style: function (mapObject) {
+                                console.log('map object inside parse',mapObject)
+                                // Parsed geo objects could be styled using setStyle method
+                                if (mapObject instanceof H.map.Polygon) {
+                                  mapObject.setStyle({
+                                    fillColor: 'rgba(255, 0, 0, 0.5)',
+                                    strokeColor: 'rgba(0, 0, 255, 0.2)',
+                                    lineWidth: 3
+                                  });
+                                }
+                              }
+                            });
+                            reader.parse(); // Trigger parsing of the file
+                            var baseLayer = map.current.getBaseLayer();
+                              map.current.addLayer(reader.getLayer());
           }
         },
         // Dependencies array
@@ -108,11 +109,11 @@ const Map = ( props ) => {
 
      // if user grants permission
     const updateMapCenter = (position) => {
-      if (map.current) {
-        map.current.setCenter({ lat: position.coords.latitude, lng: position.coords.longitude });
-        map.current.setZoom(9);
-        map.current.addObject(currentLocationMarkerIcon(position.coords.latitude,position.coords.longitude,H) ) ;
-      }
+      // if (map.current) {
+      //   map.current.setCenter({ lat: position.coords.latitude, lng: position.coords.longitude });
+      //   map.current.setZoom(9);
+      //   map.current.addObject(currentLocationMarkerIcon(position.coords.latitude,position.coords.longitude,H) ) ;
+      // }
     };
   
     // Check if the browser supports Geolocation API
