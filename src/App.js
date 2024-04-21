@@ -6,7 +6,9 @@ import DebounceSelect from "./components/select";
 import { fetchUserList } from "./components/select";
 import { style_rivers,style_road,style_road_water,style_bridges } from "./maps/layers/allLayers";
 
-const apikey = process.env.REACT_APP_HKEY;
+const apikey = 'mBN-cdOLveHULlFk0QXVX3aIfPyqQuKl41V6hUbqKMA' 
+//  'twCd8gW4pQUKn9zkgB8CP-AnxPtC4HXZpwN-oR2BB3o'
+// process.env.REACT_APP_HKEY;
 console.log(apikey)
 
 function App() {
@@ -91,6 +93,7 @@ var [userPosition, setuserPosition] = useState([]);
           layerStyle = {layerStyle}
           waypoints={waypoints}
           layerType ={vector}
+          gJson={true}
           />
       </div>
       <div style={{ display: 'flex', gap: '10px',border: '2px solid yellow'}}>

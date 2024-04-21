@@ -4,7 +4,7 @@ const Map = ( props ) => {
   var map = useRef(null);
     const mapRef = useRef(null);
     const platform = useRef(null)
-    const { apikey, userPosition, restaurantPosition ,layerStyle ,waypoints} = props;
+    const { apikey, userPosition, restaurantPosition ,layerStyle ,waypoints ,gJson} = props;
     const [layerType, setLayerType] = useState('map'); // Default layer type
     useEffect(
         () => {
@@ -44,6 +44,23 @@ const Map = ( props ) => {
             );
             // Set the map object to the reference
             map.current = newMap;
+                            // test
+                            // var reader = new H.data.geojson.Reader('data/berlin.json', {
+                            //   // This function is called each time parser detects a new map object
+                            //   style: function (mapObject) {
+                            //     console.log('map object inside parse',mapObject)
+                            //     // Parsed geo objects could be styled using setStyle method
+                            //     if (mapObject instanceof H.map.Polygon) {
+                            //       mapObject.setStyle({
+                            //         fillColor: 'rgba(255, 0, 0, 0.5)',
+                            //         strokeColor: 'rgba(0, 0, 255, 0.2)',
+                            //         lineWidth: 3
+                            //       });
+                            //     }
+                            //   }
+                            // });
+                            // reader.parse(); // Trigger parsing of the file
+                            //   map.current.addLayer(reader.getLayer());
           }
         },
         // Dependencies array
@@ -72,13 +89,29 @@ const Map = ( props ) => {
         map.current.setBaseLayer(platform.current.createDefaultLayers().vector.normal[layerType]);
       }
     }, [layerType]);
+    // if geo json true
+    useEffect(()=>{
+      if(gJson && map){
+        // showGeoJSONData(map.current)
+
+        
+            console.log('map object',map.current)
+
+      }else{
+          console.log('Map object is null or undefined.');
+      }
+
+
+    })
+    
+
 
      // if user grants permission
     const updateMapCenter = (position) => {
       if (map.current) {
         map.current.setCenter({ lat: position.coords.latitude, lng: position.coords.longitude });
         map.current.setZoom(9);
-        map.current.addObject(currentLocationMarkerIcon(position.coords.latitude,position.coords.longitude,H) )
+        map.current.addObject(currentLocationMarkerIcon(position.coords.latitude,position.coords.longitude,H) ) ;
       }
     };
   
@@ -215,5 +248,48 @@ const Map = ( props ) => {
     return new H.map.Marker({ lat: lat, lng: lng }, { icon:  icon });
 
    }
+   function showGeoJSONData (map) {
+    // Create GeoJSON reader which will download the specified file.
+    // Shape of the file was obtained by using HERE Geocoder API.
+    // It is possible to customize look and feel of the objects.
+    var reader = new H.data.geojson.Reader('./data/berlin.json', {
+      // This function is called each time parser detects a new map object
+      style: function (mapObject) {
+        console.log('map object inside parse',mapObject)
+        // Parsed geo objects could be styled using setStyle method
+        if (mapObject instanceof H.map.Polygon) {
+          mapObject.setStyle({
+            fillColor: 'rgba(255, 0, 0, 0.5)',
+            strokeColor: 'rgba(0, 0, 255, 0.2)',
+            lineWidth: 3
+          });
+        }
+      }
+    });
+  
+    // Start parsing the file
+    console.log( 'get layer parser',reader)
+    reader.parse() ;
+      // Start parsing the file
+  try {
+    reader.parse(); // Trigger parsing of the file
+    console.log('Parsing GeoJSON data...');
+    
+    // Check if layer is correctly parsed
+    const geoLayer = reader.getLayer();
+    if (geoLayer) {
+      console.log('Layer parsed successfully:', geoLayer);
+      map.addLayer(geoLayer);
+    } else {
+      console.error('Failed to parse layer from GeoJSON reader');
+    }
+  } catch (error) {
+    console.error('Error parsing GeoJSON data:', error);
+  }
+  
+    // // Add layer which shows GeoJSON data on the map
+    map.addLayer(reader.getLayer());
+  }
 
   export default Map;
+  
