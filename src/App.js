@@ -5,7 +5,8 @@ import { Select } from 'antd';
 import DebounceSelect from "./components/select";
 import { fetchUserList } from "./components/select";
 import { style_rivers,style_road,style_road_water,style_bridges } from "./maps/layers/allLayers";
-
+import Menu from './components/menu'
+import Search from './components/search'
 const apikey = process.env.REACT_APP_HKEY;
 console.log(apikey)
 
@@ -23,6 +24,9 @@ var [userPosition, setuserPosition] = useState([]);
  // layers
   const [layerStyle, setlayerStyle] = useState();
   const [vector, setVector] = useState();
+
+  // POI States
+  const [discover,setDiscover] = useState([])
   const onClickHandler_ = (location) => {
     setRestaurantPosition(location);
     console.log(restaurantPosition)
@@ -91,6 +95,7 @@ var [userPosition, setuserPosition] = useState([]);
           layerStyle = {layerStyle}
           waypoints={waypoints}
           layerType ={vector}
+          discover={discover}
           />
       </div>
       <div style={{ display: 'flex', gap: '10px',border: '2px solid yellow'}}>
@@ -151,6 +156,9 @@ var [userPosition, setuserPosition] = useState([]);
     }}
   />
 
+    </div>
+    <div>
+    <Search state={setDiscover}/>
     </div>
       </>
 
