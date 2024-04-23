@@ -1,11 +1,21 @@
 import React, { useEffect, useRef,useState } from 'react';
 import H from '@here/maps-api-for-javascript';
+import { PushpinOutlined } from '@ant-design/icons'; 
+import pinIcon from '../components/icon/redPoin';
+
+
 const Map = ( props ) => {
   var map = useRef(null);
     const mapRef = useRef(null);
     const platform = useRef(null)
     const { apikey, userPosition, restaurantPosition ,layerStyle ,waypoints,discover} = props;
-    const [layerType, setLayerType] = useState('map'); // Default layer type
+    const [layerType, setLayerType] = useState('map'); // Default layer 
+    // create default UI with layers provided by the platform
+  var uiRef = useRef(null);
+
+    // places
+
+
     useEffect(
         () => {
           // Check if the map object has already been created
@@ -25,7 +35,7 @@ const Map = ( props ) => {
               rasterTileService
             );
             // Create a new Tile layer with the Raster Tile provider
-            const rasterTileLayer = new H.map.layer.TileLayer(rasterTileProvider);
+            new H.map.layer.TileLayer(rasterTileProvider);
             // Create a new map instance with the Tile layer, center and zoom level
 
             var defaultLayers = platform.current.createDefaultLayers(); 
@@ -39,9 +49,11 @@ const Map = ( props ) => {
           );
 
             // Add panning and zooming behavior to the map
-            const behavior = new H.mapevents.Behavior(
+            new H.mapevents.Behavior(
               new H.mapevents.MapEvents(newMap)
             );
+            var ui = H.ui.UI.createDefault(newMap, defaultLayers);
+            uiRef.current  = H.ui.UI.createDefault(newMap, defaultLayers);
             // Set the map object to the reference
             map.current = newMap;
           }
@@ -105,48 +117,54 @@ const Map = ( props ) => {
       // user inputes POI
       useEffect(() => {
         // Log the state of `discover` and `discover.items`
-        console.log('Passed Discover:', discover);
     
         // Check if `discover` and `discover.items` are defined
         if (discover && discover.items && Array.isArray(discover.items) && discover.items.length > 0) {
 
-    
+              // Create a new group
+          var group = new H.map.Group();
+          var points = []
             discover.items.forEach((value, index) => {
           // add markers
-                let color = 'orange'
-                const svgCircle = `<svg width="20" height="20" version="1.1" xmlns="http://www.w3.org/2000/svg">
-                            <g id="marker">
-                            <circle cx="10" cy="10" r="7" fill="${color}" stroke="${color}" stroke-width="4">abc</circle>
-                            </g></svg>`;
-               var myIcon = new H.map.Icon(svgCircle, {
-                    anchor: { x: 10, y: 10 }
-                });
+                const iconSize = new H.math.Size(32, 32);
+                // var dataUri = getIconDataUri("path/to/your-icon.png");
+                var myIcon = new H.map.Icon(pinIcon, {size: iconSize});
                 var marker = new H.map.Marker(value.position, {
                     icon: myIcon,
                     volatility: true
                 });
-    
-                // Add custom data to the marker
-                marker.setData(index + 1);
-    
-                // Set draggable attribute on the marker (if you want to set this)
-                marker.draggable = true;
-    
+                marker.setData(`<div>${value.address.label}</div>` );
+                points.push(marker)
+                // console.log('value :-',value,'index:- ',index,group.getObjects())
                 // Add marker to the map
-                if (map.current) {
-                    map.current.addObject(marker);
-                    map.current.setZoom(1);
-                } else {
-                    console.warn('Map object is not initialized');
-                }
+
+
             });
+            group.addObjects(points)
+            if (map.current) {
+              map.current.addObject(group);
+ 
+          } else {
+              console.warn('Map object is not initialized');
+          }
+            group.addEventListener('tap', function (evt) {
+              console.log('Group was tapped!', evt.target.getData());
+              var bubble = new H.ui.InfoBubble( {lat: 53.439, lng: -2.221}, {
+                // read custom data
+                content: evt.target.getData(),
+                position: {lat: 53.439, lng: -2.221},
+              });
+              uiRef.current.addBubble(bubble);
+              // addPopup_places(H,uiRef.current,evt.target.getData(), evt.target.getGeometry())
+          },false);
+
         } else {
             console.log('discover.items is not defined or empty');
         }
     }, [discover]);
 
       // Return a div element to hold the map
-      return <div style={ { width: "100%", height: "500px" } } ref={mapRef} />;
+      return <><div style={{ width: "100%", height: "500px" }} ref={mapRef} /></>;
 
    }
    function getMarkerIcon(color) {
@@ -185,7 +203,11 @@ const Map = ( props ) => {
         // Create the polyline for the route
         const routePolyline = new H.map.Polyline(multiLineString, {
             style: {
-                lineWidth: 5
+                lineWidth: 5,
+                strokeColor: 'rgba(0, 0, 255, 1)',
+                lineDash: [0, 2],
+                lineTailCap: 'arrow-tail',
+                lineHeadCap: 'arrow-head'
             }
         });
 
@@ -257,5 +279,65 @@ const Map = ( props ) => {
     return new H.map.Marker({ lat: lat, lng: lng }, { icon:  icon });
 
    }
+//    function addDomMarker() {
+//     const markerElement = document.createElement('div');
 
+//     markerElement.style.userSelect = 'none';
+//     markerElement.style.webkitUserSelect = 'none';
+//     markerElement.style.msUserSelect = 'none';
+//     markerElement.style.mozUserSelect = 'none';
+//     markerElement.style.cursor = 'default';
+
+//     markerElement.style.backgroundColor = '#cd5f58';
+//     markerElement.style.padding = '10px';
+//     markerElement.style.width = '32px';
+//     markerElement.style.height = '32px';
+//     markerElement.style.font = 'normal 12px arial';
+//     markerElement.style.lineHeight = '12px';
+//     markerElement.style.textAlign = 'center';
+
+//     markerElement.innerHTML = 'Pike Place Market';
+
+
+//     const changeOpacity = (evt) => {
+//         evt.target.style.opacity = 0.5;
+//     }
+
+//     const restoreOpacity = (evt) => {
+//         evt.target.style.opacity = 1;
+//     }
+
+//     // create dom icon and event listeners
+//     const markerIcon = new H.map.DomIcon(markerElement, {
+//         // is called when marker enters the viewport
+//         onAttach: (el) => {
+//             el.addEventListener('mouseover', changeOpacity);
+//             el.addEventListener('mouseout', restoreOpacity);
+//         },
+//         // called when the marker leaves the viewport
+//         onDetach: (el) => {
+//             el.removeEventListener('mouseover', changeOpacity);
+//             el.removeEventListener('mouseout', restoreOpacity);
+//         }
+//     });
+
+//     const marker = new H.map.DomMarker(
+//         { lat: 47.6101359, lng: -122.3420567},
+//         { icon: markerIcon }
+//     );
+
+//     return marker;
+
+// }
+ function addPopup_places(H,ui,content, position){
+ var infoBubble =  new H.ui.InfoBubble(position, {
+    // read custom data
+    content: content,
+  });
+  console.log('ui ref',ui)
+  ui.addBubble(infoBubble)
+  console.log(ui.getBubbles)
+  // infoBubble.setContent('<div>New content for the info bubble</div>');
+  // infoBubble.setPosition({ lat: 52.5, lng: 13.4 });
+ }
   export default Map;
