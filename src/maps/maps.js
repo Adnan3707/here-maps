@@ -1,5 +1,8 @@
 import React, { useEffect, useRef,useState } from 'react';
 import H from '@here/maps-api-for-javascript';
+import geojsonData from '../components/data/berlin.json';
+// import natural from '../components/data/natural.json'
+import Tuvalu_reefs_v2_geojson from '../components/data/Tuvalu_reefs_v2_geojson'
 const Map = ( props ) => {
   var map = useRef(null);
     const mapRef = useRef(null);
@@ -144,6 +147,13 @@ const Map = ( props ) => {
             console.log('discover.items is not defined or empty');
         }
     }, [discover]);
+useEffect(()=>{
+  GeoJsonParser(H,map.current)
+},[map.current])
+    // .forEach((obj)=>{
+    //   console.log('geoJson',obj);
+    //   map.current.addObject(obj);
+    // })
 
       // Return a div element to hold the map
       return <div style={ { width: "100%", height: "500px" } } ref={mapRef} />;
@@ -255,6 +265,20 @@ const Map = ( props ) => {
     //     }
     // });
     return new H.map.Marker({ lat: lat, lng: lng }, { icon:  icon });
+
+   }
+   async function GeoJsonParser(H,map){
+
+    const geojsonReader = new H.data.geojson.Reader(undefined,{ disableLegacyMode: true })
+
+        geojsonReader.parseData(Tuvalu_reefs_v2_geojson)
+        map.addLayer(geojsonReader.getLayer());
+
+  //   geojsonReader.setStyle({
+  //     strokeColor: 'blue',
+  //     lineWidth: 4,
+  //     fillColor: 'rgba(0, 128, 255, 0.5)',
+  // });
 
    }
 
