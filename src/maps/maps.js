@@ -1,13 +1,14 @@
 import React, { useEffect, useRef,useState } from 'react';
 import H from '@here/maps-api-for-javascript';
 import geojsonData from '../components/data/berlin.json';
-// import natural from '../components/data/natural.json'
+import pacific from '../components/data/Pacific islands region EEZs.json';
+import ship from '../components/data/ship_ports.json';
 import Tuvalu_reefs_v2_geojson from '../components/data/Tuvalu_reefs_v2_geojson'
 const Map = ( props ) => {
   var map = useRef(null);
     const mapRef = useRef(null);
     const platform = useRef(null)
-    const { apikey, userPosition, restaurantPosition ,layerStyle ,waypoints,discover} = props;
+    const { apikey, userPosition, restaurantPosition ,layerStyle ,waypoints,discover,gis} = props;
     const [layerType, setLayerType] = useState('map'); // Default layer type
     useEffect(
         () => {
@@ -147,9 +148,11 @@ const Map = ( props ) => {
             console.log('discover.items is not defined or empty');
         }
     }, [discover]);
+     
+     // GIS
 useEffect(()=>{
-  GeoJsonParser(H,map.current)
-},[map.current])
+  GeoJsonParser(H,map.current,platform.current,gis)
+},[map.current,gis])
     // .forEach((obj)=>{
     //   console.log('geoJson',obj);
     //   map.current.addObject(obj);
@@ -267,19 +270,51 @@ useEffect(()=>{
     return new H.map.Marker({ lat: lat, lng: lng }, { icon:  icon });
 
    }
-   async function GeoJsonParser(H,map){
+   async function GeoJsonParser(H,map,platform,display){
+    const geojsonReader = new H.data.geojson.Reader(undefined,{ disableLegacyMode: true });
+    // geojsonReader.parseData(geojsonData);
+    //       map.addLayer(geojsonReader.getLayer());
+    removeGisLayers(map);
+    switch (display) {
+      case 0:
+        const defaultLayers = platform.createDefaultLayers();
+        map.setBaseLayer(defaultLayers.vector.normal.map);
+        break;
+        case 1:
+          geojsonReader.parseData(geojsonData);
+          map.addLayer(geojsonReader.getLayer());
+          break;
+      case 2:
+        map.removeObjects(map.getObjects());
+          geojsonReader.parseData(pacific);
+          map.addLayer(geojsonReader.getLayer());
+          break;
+      case 3:
+          geojsonReader.parseData(ship);
+          map.addLayer(geojsonReader.getLayer());
+          break;
+      case 4:
+          geojsonReader.parseData(Tuvalu_reefs_v2_geojson);
+          map.addLayer(geojsonReader.getLayer());
+          break;
+      default:
+          // Handle other cases or provide a default behavior here
+  }
 
-    const geojsonReader = new H.data.geojson.Reader(undefined,{ disableLegacyMode: true })
 
-        geojsonReader.parseData(Tuvalu_reefs_v2_geojson)
-        map.addLayer(geojsonReader.getLayer());
+
+
+  
 
   //   geojsonReader.setStyle({
   //     strokeColor: 'blue',
   //     lineWidth: 4,
   //     fillColor: 'rgba(0, 128, 255, 0.5)',
   // });
-
-   }
-
+}
+ function removeGisLayers(map){
+map.getLayers().a.forEach((obj)=>{
+  map.removeLayer(obj)
+})
+ }
   export default Map;
