@@ -1,5 +1,11 @@
 import React, { useEffect, useRef,useState } from 'react';
 import H from '@here/maps-api-for-javascript';
+
+import geojsonData from '../components/data/berlin.json';
+import pacific from '../components/data/Pacific islands region EEZs.json';
+import ship from '../components/data/ship_ports.json';
+import Tuvalu_reefs_v2_geojson from '../components/data/Tuvalu_reefs_v2_geojson'
+
 import '../components/css/bubble.css'
 import { PushpinOutlined } from '@ant-design/icons'; 
 import pinIcon from '../components/icon/redPoin';
@@ -9,6 +15,10 @@ const Map = ( props ) => {
   var map = useRef(null);
     const mapRef = useRef(null);
     const platform = useRef(null)
+
+    const { apikey, userPosition, restaurantPosition ,layerStyle ,waypoints,discover,gis} = props;
+    const [layerType, setLayerType] = useState('map'); // Default layer type
+  
     const { apikey, userPosition, restaurantPosition ,layerStyle ,waypoints,discover} = props;
     const [layerType, setLayerType] = useState('map'); // Default layer 
     // create default UI with layers provided by the platform
@@ -114,6 +124,14 @@ const Map = ( props ) => {
         }
       });
     }
+
+
+     
+     // GIS
+useEffect(()=>{
+  GeoJsonParser(H,map.current,platform.current,gis)
+},[map.current,gis])
+
 
       // user inputes POI
 
@@ -247,6 +265,40 @@ const Map = ( props ) => {
     return new H.map.Marker({ lat: lat, lng: lng }, { icon:  icon });
 
    }
+
+   async function GeoJsonParser(H,map,platform,display){
+    const geojsonReader = new H.data.geojson.Reader(undefined,{ disableLegacyMode: true });
+    // geojsonReader.parseData(geojsonData);
+    //       map.addLayer(geojsonReader.getLayer());
+    removeGisLayers(map);
+    switch (display) {
+      case 0:
+        const defaultLayers = platform.createDefaultLayers();
+        map.setBaseLayer(defaultLayers.vector.normal.map);
+        break;
+        case 1:
+          geojsonReader.parseData(geojsonData);
+          map.addLayer(geojsonReader.getLayer());
+          break;
+      case 2:
+        map.removeObjects(map.getObjects());
+          geojsonReader.parseData(pacific);
+          map.addLayer(geojsonReader.getLayer());
+          break;
+      case 3:
+          geojsonReader.parseData(ship);
+          map.addLayer(geojsonReader.getLayer());
+          break;
+      case 4:
+          geojsonReader.parseData(Tuvalu_reefs_v2_geojson);
+          map.addLayer(geojsonReader.getLayer());
+          break;
+      default:
+          // Handle other cases or provide a default behavior here
+  }
+
+
+
 //    function addDomMarker() {
 //     const markerElement = document.createElement('div');
 
@@ -297,17 +349,7 @@ const Map = ( props ) => {
 //     return marker;
 
 // }
- function addPopup_places(H,ui,content, position){
- var infoBubble =  new H.ui.InfoBubble(position, {
-    // read custom data
-    content: content,
-  });
-  console.log('ui ref',ui)
-  ui.addBubble(infoBubble)
-  console.log(ui.getBubbles)
-  // infoBubble.setContent('<div>New content for the info bubble</div>');
-  // infoBubble.setPosition({ lat: 52.5, lng: 13.4 });
- }
+
  function addMarkerToGroup(group, coordinate, html) {
                   const iconSize = new H.math.Size(32, 32);
                 var myIcon = new H.map.Icon(pinIcon, {size: iconSize});
@@ -344,4 +386,15 @@ function addInfoBubble(map,ui,data) {
 
 }
 
+  //   geojsonReader.setStyle({
+  //     strokeColor: 'blue',
+  //     lineWidth: 4,
+  //     fillColor: 'rgba(0, 128, 255, 0.5)',
+  // });
+}
+ function removeGisLayers(map){
+map.getLayers().a.forEach((obj)=>{
+  map.removeLayer(obj)
+})
+ }
   export default Map;

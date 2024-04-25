@@ -5,9 +5,12 @@ import { Select } from 'antd';
 import DebounceSelect from "./components/select";
 import { fetchUserList } from "./components/select";
 import { style_rivers,style_road,style_road_water,style_bridges } from "./maps/layers/allLayers";
-import Menu from './components/menu'
-import Search from './components/search'
-const apikey = process.env.REACT_APP_HKEY;
+
+
+
+
+const apikey ="twCd8gW4pQUKn9zkgB8CP-AnxPtC4HXZpwN-oR2BB3o"
+//  process.env.REACT_APP_HKEY;
 console.log(apikey)
 
 function App() {
@@ -24,7 +27,8 @@ var [userPosition, setuserPosition] = useState([]);
  // layers
   const [layerStyle, setlayerStyle] = useState();
   const [vector, setVector] = useState();
-
+// GIS Refrences
+ const [gis,setGis]= useState(0)
   // POI States
   const [discover,setDiscover] = useState([])
   const onClickHandler_ = (location) => {
@@ -96,6 +100,7 @@ var [userPosition, setuserPosition] = useState([]);
           waypoints={waypoints}
           layerType ={vector}
           discover={discover}
+          gis={gis}
           />
       </div>
       <div style={{ display: 'flex', gap: '10px',border: '2px solid yellow'}}>
@@ -157,9 +162,37 @@ var [userPosition, setuserPosition] = useState([]);
   />
 
     </div>
-    <div>
+
     <Search state={setDiscover}/>
-    </div>
+    <Select
+    showSearch
+    placeholder="GIS Layers"
+    optionFilterProp="children"
+    onChange={(value)=>{ setGis(value)}}    
+    options={[
+      {
+        value: 1,
+        label: 'Berlin GIS',
+      },
+      {
+        value: 2,
+        label: 'Pacific Islands Overlay',
+      },
+      {
+        value: 3,
+        label: 'World Ship Ports',
+      },
+      {
+        value: 4,
+        label: 'Tuvalu Reefs',
+      },
+      {
+        value: 0,
+        label: 'Reset',
+      },
+    ]}
+  />
+
       </>
 
    
