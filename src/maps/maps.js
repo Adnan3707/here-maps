@@ -1,5 +1,6 @@
 import React, { useEffect, useRef,useState } from 'react';
 import H from '@here/maps-api-for-javascript';
+import '../components/css/bubble.css'
 import { PushpinOutlined } from '@ant-design/icons'; 
 import pinIcon from '../components/icon/redPoin';
 
@@ -115,53 +116,20 @@ const Map = ( props ) => {
     }
 
       // user inputes POI
-      useEffect(() => {
-        // Log the state of `discover` and `discover.items`
-    
-        // Check if `discover` and `discover.items` are defined
-        if (discover && discover.items && Array.isArray(discover.items) && discover.items.length > 0) {
 
-              // Create a new group
-          var group = new H.map.Group();
-          var points = []
-            discover.items.forEach((value, index) => {
-          // add markers
-                const iconSize = new H.math.Size(32, 32);
-                // var dataUri = getIconDataUri("path/to/your-icon.png");
-                var myIcon = new H.map.Icon(pinIcon, {size: iconSize});
-                var marker = new H.map.Marker(value.position, {
-                    icon: myIcon,
-                    volatility: true
-                });
-                marker.setData(`<div>${value.address.label}</div>` );
-                points.push(marker)
-                // console.log('value :-',value,'index:- ',index,group.getObjects())
-                // Add marker to the map
+    useEffect(() => {
+      // Check if `discover` and `discover.items` are defined
+      if (discover && discover.items && Array.isArray(discover.items) && discover.items.length > 0) {
+     
+          addInfoBubble(map.current,uiRef.current,discover.items);
+          // Process each item
 
-
-            });
-            group.addObjects(points)
-            if (map.current) {
-              map.current.addObject(group);
- 
-          } else {
-              console.warn('Map object is not initialized');
-          }
-            group.addEventListener('tap', function (evt) {
-              console.log('Group was tapped!', evt.target.getData());
-              var bubble = new H.ui.InfoBubble( {lat: 53.439, lng: -2.221}, {
-                // read custom data
-                content: evt.target.getData(),
-                position: {lat: 53.439, lng: -2.221},
-              });
-              uiRef.current.addBubble(bubble);
-              // addPopup_places(H,uiRef.current,evt.target.getData(), evt.target.getGeometry())
-          },false);
-
-        } else {
-            console.log('discover.items is not defined or empty');
-        }
-    }, [discover]);
+      } else {
+          console.log('discover.items is not defined or empty');
+      }
+  }, [discover]);
+  
+  
 
       // Return a div element to hold the map
       return <><div style={{ width: "100%", height: "500px" }} ref={mapRef} /></>;
@@ -340,4 +308,40 @@ const Map = ( props ) => {
   // infoBubble.setContent('<div>New content for the info bubble</div>');
   // infoBubble.setPosition({ lat: 52.5, lng: 13.4 });
  }
+ function addMarkerToGroup(group, coordinate, html) {
+                  const iconSize = new H.math.Size(32, 32);
+                var myIcon = new H.map.Icon(pinIcon, {size: iconSize});
+        var marker = new H.map.Marker(coordinate, {
+          icon: myIcon
+      });
+  // add custom data to the marker
+  marker.setData(html);
+  group.addObject(marker);
+}
+
+function addInfoBubble(map,ui,data) {
+  var group = new H.map.Group();
+  map.addObject(group);
+
+  // add 'tap' event listener, that opens info bubble, to the group
+  group.addEventListener('tap', function (evt) {
+    // event target is the marker itself, group is a parent event target
+    // for all objects that it contains
+    var bubble = new H.ui.InfoBubble(evt.target.getGeometry(), {
+      // read custom data
+      content: evt.target.getData()
+    });
+    // show info bubble
+    ui.addBubble(bubble);
+  }, false);
+
+ data.forEach((value, index) =>{
+
+   addMarkerToGroup(group, value.position,
+     `<div>${value.address.label}<br /></div>`);
+ 
+ })
+
+}
+
   export default Map;
