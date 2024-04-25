@@ -106,48 +106,6 @@ const Map = ( props ) => {
       });
     }
 
-      // user inputes POI
-      useEffect(() => {
-        // Log the state of `discover` and `discover.items`
-        console.log('Passed Discover:', discover);
-    
-        // Check if `discover` and `discover.items` are defined
-        if (discover && discover.items && Array.isArray(discover.items) && discover.items.length > 0) {
-
-    
-            discover.items.forEach((value, index) => {
-          // add markers
-                let color = 'orange'
-                const svgCircle = `<svg width="20" height="20" version="1.1" xmlns="http://www.w3.org/2000/svg">
-                            <g id="marker">
-                            <circle cx="10" cy="10" r="7" fill="${color}" stroke="${color}" stroke-width="4">abc</circle>
-                            </g></svg>`;
-               var myIcon = new H.map.Icon(svgCircle, {
-                    anchor: { x: 10, y: 10 }
-                });
-                var marker = new H.map.Marker(value.position, {
-                    icon: myIcon,
-                    volatility: true
-                });
-    
-                // Add custom data to the marker
-                marker.setData(index + 1);
-    
-                // Set draggable attribute on the marker (if you want to set this)
-                marker.draggable = true;
-    
-                // Add marker to the map
-                if (map.current) {
-                    map.current.addObject(marker);
-                    map.current.setZoom(1);
-                } else {
-                    console.warn('Map object is not initialized');
-                }
-            });
-        } else {
-            console.log('discover.items is not defined or empty');
-        }
-    }, [discover]);
      
      // GIS
 useEffect(()=>{
