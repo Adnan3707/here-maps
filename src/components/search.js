@@ -35,7 +35,7 @@ function App({state}){
                 const data = await response.json();
                 
                 // Process the data (e.g., display nearest coffee shops)
-                console.log('Nearest coffee shops:', data);
+                state(null) // empty previous values
                 state(data)
                 // data.items.forEach(item => {
                 //     console.log(`Name: ${item.title}, Address: ${item.address.label}, Distance: ${item.distance} meters`);
