@@ -5,7 +5,7 @@ import { Select } from 'antd';
 import DebounceSelect from "./components/select";
 import { fetchUserList } from "./components/select";
 import { style_rivers,style_road,style_road_water,style_bridges } from "./maps/layers/allLayers";
-
+import Search from './components/search'
 
 
 

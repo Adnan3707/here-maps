@@ -18,9 +18,6 @@ const Map = ( props ) => {
 
     const { apikey, userPosition, restaurantPosition ,layerStyle ,waypoints,discover,gis} = props;
     const [layerType, setLayerType] = useState('map'); // Default layer type
-  
-    const { apikey, userPosition, restaurantPosition ,layerStyle ,waypoints,discover} = props;
-    const [layerType, setLayerType] = useState('map'); // Default layer 
     // create default UI with layers provided by the platform
   var uiRef = useRef(null);
 
@@ -128,9 +125,9 @@ const Map = ( props ) => {
 
      
      // GIS
-useEffect(()=>{
-  GeoJsonParser(H,map.current,platform.current,gis)
-},[map.current,gis])
+    useEffect(()=>{
+      GeoJsonParser(H,map.current,platform.current,gis)
+    },[map.current,gis])
 
 
       // user inputes POI
@@ -138,10 +135,7 @@ useEffect(()=>{
     useEffect(() => {
       // Check if `discover` and `discover.items` are defined
       if (discover && discover.items && Array.isArray(discover.items) && discover.items.length > 0) {
-     
           addInfoBubble(map.current,uiRef.current,discover.items);
-          // Process each item
-
       } else {
           console.log('discover.items is not defined or empty');
       }
@@ -296,7 +290,7 @@ useEffect(()=>{
       default:
           // Handle other cases or provide a default behavior here
   }
-
+}
 
 
 //    function addDomMarker() {
@@ -391,7 +385,7 @@ function addInfoBubble(map,ui,data) {
   //     lineWidth: 4,
   //     fillColor: 'rgba(0, 128, 255, 0.5)',
   // });
-}
+
  function removeGisLayers(map){
 map.getLayers().a.forEach((obj)=>{
   map.removeLayer(obj)
